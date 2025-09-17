@@ -7,6 +7,8 @@ import com.easychat.utils.CopyTools;
 import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +16,9 @@ import com.easychat.service.UserInfoService;
 import com.easychat.entity.po.UserInfo;
 import com.easychat.entity.query.UserInfoQuery;
 import com.easychat.entity.vo.ResponseVO;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 /**
  * @author 高98
@@ -107,16 +112,42 @@ public class UserInfoController extends ABaseController{
 	 }
 
 
-	 @RequestMapping("getUserInfo")
+	 @RequestMapping("/getUserInfo")
 	 @GlobalInterceptor
-	public ResponseVO getUserInfo(HttpServletRequest request){
-		 TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(request);
-		 UserInfo uerInfo = userInfoService.getByUserId(tokenUserInfoDto.getUserId());
-		 UserInfoVO userInfoVO = CopyTools.copy(uerInfo, UserInfoVO.class);
+	 public ResponseVO getUserInfo(HttpServletRequest request){
+		TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(request);
+		UserInfo uerInfo = userInfoService.getByUserId(tokenUserInfoDto.getUserId());
+		UserInfoVO userInfoVO = CopyTools.copy(uerInfo, UserInfoVO.class);
 
-		 userInfoVO.setAdmin(tokenUserInfoDto.getAdmin());
+		userInfoVO.setAdmin(tokenUserInfoDto.getAdmin());
 
 
-		 return getSuccessResponseVo(userInfoVO);
+		return getSuccessResponseVo(userInfoVO);
 	 }
+
+
+	@RequestMapping("/saveUserInfo")
+	@GlobalInterceptor
+	public ResponseVO saveUserInfo(HttpServletRequest request, UserInfo userInfo, MultipartFile avatarFile,
+								   MultipartFile avatarCover) throws IOException {
+		TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(request);
+		userInfo.setUserId(tokenUserInfoDto.getUserId());
+		userInfo.setPassword(null);
+		userInfo.setStatus(null);
+		userInfo.setCreateTime(null);
+		userInfo.setLastLoginTime(null);
+
+		this.userInfoService.updateUserInfo(userInfo,avatarFile,avatarCover);
+
+		return getUserInfo(request);
+	}
+
+
+	@RequestMapping("/updatePassword")
+	@GlobalInterceptor
+	public ResponseVO updatePassword(HttpServletRequest request) throws IOException {
+
+
+		return getUserInfo(request);
+	}
 }
