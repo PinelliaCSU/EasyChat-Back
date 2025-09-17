@@ -1,0 +1,71 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+      <option name="ignoredModules">
+        <list>
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+          <option value="easychat" />
+        </list>
+      </option>
+      <option name="ignoredPackages">
+        <list>
+          <option value="org.springframework:spring-core:5.3.13" />
+          <option value="io.netty:netty-common:4.1.50.Final" />
+          <option value="io.netty:netty-handler:4.1.50.Final" />
+          <option value="org.springframework:spring-beans:5.3.13" />
+          <option value="org.springframework:spring-context:5.3.13" />
+          <option value="org.mybatis:mybatis:3.4.6" />
+          <option value="org.springframework.boot:spring-boot-autoconfigure:2.6.1" />
+          <option value="mysql:mysql-connector-java:8.0.23" />
+          <option value="ch.qos.logback:logback-classic:1.2.10" />
+          <option value="ch.qos.logback:logback-core:1.2.10" />
+          <option value="com.squareup.okhttp3:okhttp:3.2.0" />
+          <option value="com.alibaba:fastjson:1.2.66" />
+          <option value="org.apache.commons:commons-lang3:3.4" />
+          <option value="commons-codec:commons-codec:1.9" />
+          <option value="commons-io:commons-io:2.5" />
+          <option value="io.netty:netty-all:4.1.50.Final" />
+          <option value="org.redisson:redisson:3.12.3" />
+        </list>
+      </option>
+      <option name="ignoredReasons">
+        <list>
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+          <option value="不可利用" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
