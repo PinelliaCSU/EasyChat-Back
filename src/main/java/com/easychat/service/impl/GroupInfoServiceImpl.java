@@ -145,6 +145,7 @@ public class GroupInfoServiceImpl implements GroupInfoService{
 			if(count >= sysSettingDto.getMaxGroupCount()){
 				throw new BusinessException("最多只能支持创建" + sysSettingDto.getMaxGroupCount() + "个群聊!");
 			}
+			//头像不能为空
 			if(avatarFile == null){
 				throw new BusinessException(ResponseCodeEnum.CODE_600);
 			}

@@ -1,9 +1,11 @@
 package com.easychat.controller;
 
 import com.easychat.annotation.GlobalInterceptor;
+import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.vo.UserInfoVO;
 import com.easychat.utils.CopyTools;
+import com.easychat.utils.StringTools;
 import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -145,8 +147,24 @@ public class UserInfoController extends ABaseController{
 
 	@RequestMapping("/updatePassword")
 	@GlobalInterceptor
-	public ResponseVO updatePassword(HttpServletRequest request) throws IOException {
+	public ResponseVO updatePassword(HttpServletRequest request,
+									 @NotEmpty @Pattern(regexp = Constants.REGEX_PASSWORD) String password) throws IOException {
 
+		TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(request);
+		UserInfo userInfo = new UserInfo();
+		userInfo.setPassword(StringTools.encodeMd5(password));
+
+		this.userInfoService.updateByUserId(userInfo,tokenUserInfoDto.getUserId());
+		//TODO 修改密码之后强制退出
+		return getUserInfo(null);
+	}
+
+
+	@RequestMapping("/logout")
+	@GlobalInterceptor
+	public ResponseVO logout(HttpServletRequest request) throws IOException {
+		TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(request);
+		//TODO 退出登录 关闭ws连接
 
 		return getUserInfo(request);
 	}
