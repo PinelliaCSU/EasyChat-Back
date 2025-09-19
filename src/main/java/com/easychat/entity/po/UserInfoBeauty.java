@@ -13,7 +13,7 @@ public class UserInfoBeauty implements Serializable{
 	/**
 	 * 自增id
 	 */
-	private String id;
+	private Integer id;
 
 	/**
 	 * 用户ID
@@ -31,11 +31,11 @@ public class UserInfoBeauty implements Serializable{
 	@JsonIgnore
 	private Integer status;
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	public String getId() {
+	public Integer getId() {
 		return this.id;
 	}
 

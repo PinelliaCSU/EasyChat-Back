@@ -48,17 +48,17 @@ public interface UserInfoBeautyService{
 	/**
 	 * 根据Id查询
 	 */
-	 UserInfoBeauty getById(String id);
+	 UserInfoBeauty getById(Integer id);
 
 	/**
 	 * 根据Id查询
 	 */
-	 Integer updateById(UserInfoBeauty bean , String id);
+	 Integer updateById(UserInfoBeauty bean , Integer id);
 
 	/**
 	 * 根据Id删除
 	 */
-	 Integer deleteById(String id);
+	 Integer deleteById(Integer id);
 
 	/**
 	 * 根据UserId查询

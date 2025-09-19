@@ -39,5 +39,10 @@ public class AdminUserInfoBeautyController extends ABaseController {
         return getSuccessResponseVo(null);
     }
 
-
+    @RequestMapping("/delBeautyAccount")
+    @GlobalInterceptor(checkAdmin = true)
+    public ResponseVO delBeautyAccount(@NotNull Integer id) throws BusinessException {
+        userInfoBeautyService.deleteById(id);
+        return getSuccessResponseVo(null);
+    }
 }

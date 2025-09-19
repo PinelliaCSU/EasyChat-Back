@@ -61,21 +61,21 @@ public class UserInfoBeautyController extends ABaseController{
 	 * 根据Id查询
 	 */
 	@RequestMapping("getUserInfoBeautyById")
-	 public ResponseVO getUserInfoBeautyById(String id){
+	 public ResponseVO getUserInfoBeautyById(Integer id){
 		return getSuccessResponseVo(this.userInfoBeautyService.getById(id));
 	 }
 	/**
 	 * 根据Id更新
 	 */
 	@RequestMapping("updateUserInfoBeautyById")
-	 public ResponseVO updateUserInfoBeautyById(UserInfoBeauty bean,String id){
+	 public ResponseVO updateUserInfoBeautyById(UserInfoBeauty bean,Integer id){
 		return getSuccessResponseVo(this.userInfoBeautyService.updateById(bean,id));
 	 }
 	/**
 	 * 根据Id删除
 	 */
 	@RequestMapping("deleteUserInfoBeautyById")
-	 public ResponseVO deleteUserInfoBeautyById(String id){
+	 public ResponseVO deleteUserInfoBeautyById(Integer id){
 		return getSuccessResponseVo(this.userInfoBeautyService.deleteById(id));
 	 }
 	/**

@@ -94,21 +94,21 @@ public class UserInfoBeautyServiceImpl implements UserInfoBeautyService{
 	 * 根据Id查询
 	 */
 	@Override
-	 public UserInfoBeauty getById(String id){
+	 public UserInfoBeauty getById(Integer id){
 		return this.userInfoBeautyMapper.selectById(id);
 	 }
 	/**
 	 * 根据Id更新
 	 */
 	@Override
-	 public Integer updateById(UserInfoBeauty bean , String id){
+	 public Integer updateById(UserInfoBeauty bean , Integer id){
 		return this.userInfoBeautyMapper.updateById(bean,id);
 	 }
 	/**
 	 * 根据Id删除
 	 */
 	@Override
-	 public Integer deleteById(String id){
+	 public Integer deleteById(Integer id){
 		return this.userInfoBeautyMapper.deleteById(id);
 	 }
 	/**
@@ -185,16 +185,17 @@ public class UserInfoBeautyServiceImpl implements UserInfoBeautyService{
 		//判断邮箱是否已经注册
 		UserInfo userInfo = this.userInfoMapper.selectByEmail(beauty.getEmail());
 		if(userInfo != null){
-			throw new BusinessException("靓号邮箱已经杯注册！");
+			throw new BusinessException("靓号邮箱已经被注册！");
 		}
 
 		userInfo = this.userInfoMapper.selectByUserId(beauty.getUserId());
 		if(userInfo != null){
-			throw new BusinessException("靓号已经杯注册");
+			throw new BusinessException("靓号已经被注册");
 		}
 		if(beauty.getId() != null){
-			this.userInfoBeautyMapper.updateByUserId(beauty,beauty.getId());
+			this.userInfoBeautyMapper.updateById(beauty,beauty.getId());
 		}else{
+			beauty.setStatus(BeautyAccountStatusEnum.NO_USE.getStatus());
 			this.userInfoBeautyMapper.insert(beauty);
 		}
 	}
