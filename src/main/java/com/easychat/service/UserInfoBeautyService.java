@@ -3,6 +3,8 @@ package com.easychat.service;
 import com.easychat.entity.query.UserInfoBeautyQuery;
 import com.easychat.entity.po.UserInfoBeauty;
 import com.easychat.entity.vo.PaginationResultVO;
+import com.easychat.exception.BusinessException;
+
 import java.util.List;
 /**
  * @author 高98
@@ -88,5 +90,6 @@ public interface UserInfoBeautyService{
 	 */
 	 Integer deleteByEmail(String email);
 
+	 void saveAccount(UserInfoBeauty beauty) throws BusinessException;
 
 }

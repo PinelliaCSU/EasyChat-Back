@@ -1,10 +1,16 @@
 package com.easychat.service.impl;
 
+import com.easychat.entity.enums.BeautyAccountStatusEnum;
+import com.easychat.entity.enums.ResponseCodeEnum;
+import com.easychat.entity.po.UserInfo;
 import com.easychat.entity.query.UserInfoBeautyQuery;
 import com.easychat.entity.query.SimplePage;
 import com.easychat.entity.po.UserInfoBeauty;
+import com.easychat.entity.query.UserInfoQuery;
 import com.easychat.entity.vo.PaginationResultVO;
+import com.easychat.exception.BusinessException;
 import com.easychat.mappers.UserInfoBeautyMapper;
+import com.easychat.mappers.UserInfoMapper;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import javax.annotation.Resource;
@@ -21,6 +27,8 @@ public class UserInfoBeautyServiceImpl implements UserInfoBeautyService{
 
 	@Resource
 	private UserInfoBeautyMapper<UserInfoBeauty,UserInfoBeautyQuery> userInfoBeautyMapper;
+	@Resource
+	private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
 	/**
 	 * 根据条件查询列表
 	 */
@@ -145,5 +153,50 @@ public class UserInfoBeautyServiceImpl implements UserInfoBeautyService{
 	 public Integer deleteByEmail(String email){
 		return this.userInfoBeautyMapper.deleteByEmail(email);
 	 }
+
+	@Override
+	public void saveAccount(UserInfoBeauty beauty) throws BusinessException {
+		if(beauty.getId() != null){
+			UserInfoBeauty dbInfo = this.userInfoBeautyMapper.selectById(beauty.getId());
+			if(BeautyAccountStatusEnum.USEED.getStatus().equals(dbInfo.getStatus())){
+				throw new BusinessException(ResponseCodeEnum.CODE_600);
+			}
+		}
+		UserInfoBeauty dbInfo = this.userInfoBeautyMapper.selectByEmail(beauty.getEmail());
+		//新增的时候判断邮箱是否存在
+		//beauty.getId() == null 表示当前是新增操作（新增时ID通常为空）。
+		if(beauty.getId() == null && dbInfo != null){
+			throw new BusinessException("靓号邮箱已经存在");
+		}
+		//修改时判断邮箱是否存在
+		if(beauty.getId() != null && dbInfo != null && dbInfo.getId() != null && !beauty.getId().equals(dbInfo.getId())){
+			throw new BusinessException("靓号邮箱已经存在");
+		}
+
+		//判断靓号是否存在，则判断逻辑与上述类似
+		dbInfo = this.userInfoBeautyMapper.selectByUserId(beauty.getUserId());
+		if(beauty.getId() == null && dbInfo != null){
+			throw new BusinessException("靓号已经存在");
+		}
+		if(beauty.getId() != null && dbInfo != null && dbInfo.getId() != null && !beauty.getId().equals(dbInfo.getId())){
+			throw new BusinessException("靓号已经存在");
+		}
+
+		//判断邮箱是否已经注册
+		UserInfo userInfo = this.userInfoMapper.selectByEmail(beauty.getEmail());
+		if(userInfo != null){
+			throw new BusinessException("靓号邮箱已经杯注册！");
+		}
+
+		userInfo = this.userInfoMapper.selectByUserId(beauty.getUserId());
+		if(userInfo != null){
+			throw new BusinessException("靓号已经杯注册");
+		}
+		if(beauty.getId() != null){
+			this.userInfoBeautyMapper.updateByUserId(beauty,beauty.getId());
+		}else{
+			this.userInfoBeautyMapper.insert(beauty);
+		}
+	}
 
 }
