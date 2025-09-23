@@ -184,7 +184,7 @@ public class GroupInfoServiceImpl implements GroupInfoService{
 		String baseFolder = appConfig.getProjectFolder() + Constants.FILE_FOLDER_FILE;
 		File targetFileFolder = new File(baseFolder + Constants.FILE_FOLDER_AVATAR_NAME);
 		if(!targetFileFolder.exists()){
-			targetFileFolder.mkdirs();
+			targetFileFolder.mkdirs();//不存在就去创建
 		}
 		String filename = targetFileFolder.getPath() + "/" + groupInfo.getGroupId() + Constants.IMAGE_SUFFIX;
 		avatarFile.transferTo(new File(filename));
