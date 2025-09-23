@@ -25,4 +25,6 @@ public interface UserContactMapper<T,P> extends BaseMapper {
 	 */
 	 Integer deleteByUserIdAndContactId(@Param("userId") String userId,@Param("contactId") String contactId);
 
+
+	 Integer updateByParam(@Param("bean") T t, @Param("query") P p);
 }

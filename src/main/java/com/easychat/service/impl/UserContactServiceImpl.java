@@ -134,6 +134,11 @@ public class UserContactServiceImpl implements UserContactService{
 	 }
 
 	@Override
+	public Integer updateByParam(UserContact userContact, UserContactQuery userContactQuery) {
+		return this.updateByParam(userContact, userContactQuery);
+	}
+
+	@Override
 	public UserContactSearchResultDto searchContact(String userId, String contactId) {
 		UserContactTypeEnum typeEnum = UserContactTypeEnum.getByPrefix(contactId);//根据前缀确定是那种联系类型
 		if(typeEnum==null){

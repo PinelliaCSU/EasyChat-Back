@@ -66,6 +66,33 @@
 			and c.status in <foreach collection="query.statusArray" separator="," item="item" open="(" close=")">#{item}</foreach>
 		</if>
     </sql>
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.easychat.entity.query.UserContactQuery">
+		UPDATE user_contact
+		<set>
+			<if test="bean.userId != null">
+				user_id = #{bean.userId},
+			</if>
+			<if test="bean.contactId != null">
+				contact_id = #{bean.contactId},
+			</if>
+			<if test="bean.contactType != null">
+				contact_type = #{bean.contactType},
+			</if>
+			<if test="bean.createTime != null">
+				create_time = #{bean.createTime},
+			</if>
+			<if test="bean.status != null">
+				status = #{bean.status},
+			</if>
+			<if test="bean.lastUpdateTime != null">
+				last_update_time = #{bean.lastUpdateTime},
+			</if>
+		</set>
+		<include refid="query_condition"/>
+	</update>
+
+
     <!--通用查询条件-->
     <sql id="query_condition">
 		<where>

@@ -3,14 +3,13 @@ package com.easychat.service.impl;
 import com.easychat.entity.config.AppConfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.SysSettingDto;
-import com.easychat.entity.enums.ResponseCodeEnum;
-import com.easychat.entity.enums.UserContactStatusEnum;
-import com.easychat.entity.enums.UserContactTypeEnum;
+import com.easychat.entity.enums.*;
 import com.easychat.entity.po.UserContact;
 import com.easychat.entity.query.GroupInfoQuery;
 import com.easychat.entity.query.SimplePage;
 import com.easychat.entity.po.GroupInfo;
 import com.easychat.entity.query.UserContactQuery;
+import com.easychat.entity.query.UserInfoQuery;
 import com.easychat.entity.vo.PaginationResultVO;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.GroupInfoMapper;
@@ -24,7 +23,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
-import com.easychat.entity.enums.PageSize;
+
 import com.easychat.service.GroupInfoService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -190,6 +189,31 @@ public class GroupInfoServiceImpl implements GroupInfoService{
 		String filename = targetFileFolder.getPath() + "/" + groupInfo.getGroupId() + Constants.IMAGE_SUFFIX;
 		avatarFile.transferTo(new File(filename));
 		avatarCover.transferTo(new File(filename + Constants.COVER_IMAGE_SUFFIX));
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void dissolutionGroup(String groupOwnerId, String groupId) throws BusinessException {
+		GroupInfo dbInfo = this.groupInfoMapper.selectByGroupId(groupId);
+		if(dbInfo == null || !dbInfo.getGroupOwnerId().equals(groupOwnerId)){
+			throw new BusinessException(ResponseCodeEnum.CODE_600);
+		}
+		//删除群组
+		GroupInfo updateGroupInfo = new GroupInfo();
+		updateGroupInfo.setStatus(GroupStatusEnum.DISSOLUTION.getStatus());
+		this.groupInfoMapper.updateByGroupId(updateGroupInfo,groupId);
+		//更新联系人信息
+		UserContactQuery userContactQuery = new UserContactQuery();
+		userContactQuery.setContactId(groupId);
+		userContactQuery.setContactType(UserContactTypeEnum.GROUP.getType());
+
+		UserContact updateuserContact = new UserContact();
+		updateuserContact.setStatus(UserContactStatusEnum.DEL.getStatus());
+		this.userContactMapper.updateByParam(updateuserContact,userContactQuery);
+
+		//TODO 移除相关群员的联系人缓存
+
+		//TODO 更新会话信息，记录群消息，发送解散群消息
 	}
 
 }

@@ -63,4 +63,6 @@ public interface GroupInfoService{
 	 Integer deleteByGroupId(String groupId);
 
 	 void saveGroup(GroupInfo groupInfo , MultipartFile avatarFile, MultipartFile avatarCover) throws BusinessException, IOException;
+
+	 void dissolutionGroup(String groupOwnerId,String groupId) throws BusinessException;
 }

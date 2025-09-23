@@ -76,23 +76,31 @@
     </sql>
     <!--查询列表-->
 	<select id="selectList" resultMap="base_result_map">
-		SELECT a.*
+		SELECT
+		a.*
 		<if test="query.queryContactInfo">
 			,case
 			when a.contact_type = 0 then u.nick_name
 			when a.contact_type = 1 then g.group_name
 			end as contactName
 		</if>
-
-		SELECT <include refid="base_column_list"/>
 		FROM user_contact_apply a
-		<if  test="query.queryContactInfo">
+		<if test="query.queryContactInfo">
 			LEFT JOIN user_info u ON u.user_id = a.apply_user_id and a.receive_user_id = #{query.receiveUserId}
 			LEFT JOIN group_info g ON g.group_id = a.contact_id and a.receive_user_id = #{query.receiveUserId}
 		</if>
 		<include refid="query_condition"/>
-		<if test="query.orderBy!=null"> order by ${query.orderBy}</if>
-		<if test="query.simplePage!=null">limit #{query.simplePage.start},#{query.simplePage.end}</if>
+		<!-- 修改这里：明确指定使用 a.create_time -->
+		<if test="query.orderBy != null and query.orderBy != ''">
+			order by
+			<choose>
+				<when test="query.orderBy == 'create_time'">a.last_apply_time</when>
+				<when test="query.orderBy == 'create_time desc'">a.last_apply_time desc</when>
+				<when test="query.orderBy == 'create_time asc'">a.last_apply_time asc</when>
+				<otherwise>${query.orderBy}</otherwise>
+			</choose>
+		</if>
+		<if test="query.simplePage != null">limit #{query.simplePage.start},#{query.simplePage.end}</if>
 	</select>
   <!--查询数量-->
 	<select id="selectCount"  resultType="java.lang.Integer">

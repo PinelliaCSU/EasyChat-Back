@@ -63,6 +63,8 @@ public interface UserContactService{
 	 */
 	 Integer deleteByUserIdAndContactId(String userId,String contactId);
 
+	 Integer updateByParam(UserContact userContact,UserContactQuery userContactQuery);
+
 	 UserContactSearchResultDto searchContact(String userId, String contactId);
 
 	 Integer applyAdd(TokenUserInfoDto tokenUserInfoDto,String contactId,String applyInfo) throws BusinessException;
