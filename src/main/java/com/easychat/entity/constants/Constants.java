@@ -30,4 +30,7 @@ public class Constants {
 
     public static final String REGEX_PASSWORD = "^(?=.*\\d) (?=.*[a-zA-Z]) [\\da-zA-z~!@#$%^&*_] {0,10}$";
 
+    public static final String APP_UPDATE_FOLDER = "/app/";
+
+    public static final String APP_EXE_SUFFIX = ".exe";
 }

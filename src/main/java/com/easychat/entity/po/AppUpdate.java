@@ -1,6 +1,8 @@
 package com.easychat.entity.po;
 
 import java.io.Serializable;
+
+import com.easychat.utils.StringTools;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import com.easychat.entity.enums.DateTimePatternEnum;
@@ -10,7 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * @Description app发布
- * @author 赵默笙
+ * @author Pinellia
  * @Date 2025-09-24 17:06:29
  **/
 public class AppUpdate implements Serializable{
@@ -25,7 +27,8 @@ public class AppUpdate implements Serializable{
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date createTime;
 	//0:未发布 1:灰度发布 2:全网发布
-	@JsonIgnore
+
+
 	private Integer status;
 	//灰度uid
 	private String grayscaleUid;
@@ -33,6 +36,20 @@ public class AppUpdate implements Serializable{
 	private Integer fileType;
 	//外链地址
 	private String outerLink;
+
+	public String[] getUpdateDescArray() {
+		if(!StringTools.isEmpty(updateDesc)){
+			return updateDesc.split("\\|");
+		}
+		return updateDescArray;
+	}
+
+	public void setUpdateDescArray(String[] updateDescArray) {
+
+		this.updateDescArray = updateDescArray;
+	}
+
+	private String[] updateDescArray;
 
 	public Integer getId() {
 		return id;

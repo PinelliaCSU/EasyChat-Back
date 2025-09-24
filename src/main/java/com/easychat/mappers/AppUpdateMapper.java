@@ -4,7 +4,7 @@ import com.easychat.mappers.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 /**
  * @Description app发布
- * @author 赵默笙
+ * @author Pinellia
  * @Date 2025-09-24 17:06:29
  **/
 public interface AppUpdateMapper<T,P> extends BaseMapper {

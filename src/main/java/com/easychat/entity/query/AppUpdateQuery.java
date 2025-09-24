@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * @Description app发布查询对象
- * @author 赵默笙
+ * @author Pinellia
  * @Date 2025-09-24 17:06:29
  **/
 public class AppUpdateQuery extends BaseQuery {
