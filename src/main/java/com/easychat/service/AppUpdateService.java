@@ -39,8 +39,19 @@ public interface AppUpdateService {
 	int updateUpdateById(AppUpdate bean, Integer id);
 
 	//根据Id删除
-	int deleteUpdateById(Integer id);
+	int deleteUpdateById(Integer id) throws BusinessException;
+
+	//根据Version查询
+	AppUpdate getUpdateByVersion(String version);
+
+	//根据Version更新
+	int updateUpdateByVersion(AppUpdate bean, String version);
+
+	//根据Version删除
+	int deleteUpdateByVersion(String version);
 
 
 	void saveUpdate(AppUpdate appUpdate, MultipartFile file) throws BusinessException, IOException;
+
+	void postUpdate(Integer id,Integer status,String grayscaleUid) throws BusinessException;
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.easyjava.mapper.UpdateMapper">
+<mapper namespace="com.easychat.mapper.AppUpdateMapper">
 	<!--实体映射-->
-	<resultMap id="base_result_map" type="com.easyjava.entity.po.AppUpdate">
+	<resultMap id="base_result_map" type="com.easychat.entity.po.AppUpdate">
 		<!-- 自增加-->
 		<id column="id" property="id"/>
 		<!-- 版本号-->
@@ -110,7 +110,7 @@
 	</select>
 
 	<!--插入（匹配有值的字段）-->
-	<insert id="insert" parameterType="com.easyjava.entity.po.AppUpdate">
+	<insert id="insert" parameterType="com.easychat.entity.po.AppUpdate">
 		<selectKey keyProperty="bean.id" resultType="Integer" order="AFTER">
 			SELECT LAST_INSERT_ID()
 		</selectKey>
@@ -164,7 +164,7 @@
 	</insert>
 
 	<!--插入或更新（匹配有值的字段）-->
-	<insert id="insertOrUpdate" parameterType="com.easyjava.entity.po.AppUpdate">
+	<insert id="insertOrUpdate" parameterType="com.easychat.entity.po.AppUpdate">
 		INSERT INTO app_update
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="bean.version!=null">
@@ -241,14 +241,14 @@
 		</trim>
 	</insert>
 
-	<insert id="insertBatch" parameterType="com.easyjava.entity.po.AppUpdate">
+	<insert id="insertBatch" parameterType="com.easychat.entity.po.AppUpdate">
 		INSERT INTO app_update(version,update_desc,create_time,status,grayscale_uid,file_type,outer_link) values
 		<foreach collection="list" item="item" separator=",">
 			(#{item.version},#{item.updateDesc},#{item.createTime},#{item.status},#{item.grayscaleUid},#{item.fileType},#{item.outerLink})
 		</foreach>
 	</insert>
 
-	<insert id="insertOrUpdateBatch" parameterType="com.easyjava.entity.po.AppUpdate">
+	<insert id="insertOrUpdateBatch" parameterType="com.easychat.entity.po.AppUpdate">
 		INSERT INTO app_update(version,update_desc,create_time,status,grayscale_uid,file_type,outer_link) values
 		<foreach collection="list" item="item" separator=",">
 			(#{item.version},#{item.updateDesc},#{item.createTime},#{item.status},#{item.grayscaleUid},#{item.fileType},#{item.outerLink})
@@ -275,7 +275,7 @@
 	</delete>
 
 	<!--根据Id更新-->
-	<update id="updateById" parameterType="com.easyjava.entity.po.AppUpdate">
+	<update id="updateById" parameterType="com.easychat.entity.po.AppUpdate">
 		UPDATE app_update
 		<set>
 			<if test="bean.id!=null">
@@ -305,6 +305,54 @@
 		</set>
 		where
 			id=#{id} 
+	</update>
+
+	<!--根据Version查询-->
+	<select id="selectByVersion" resultMap="base_result_map">
+		select
+		<include refid="base_column_list"/>
+		from app_update
+		where version=#{version}
+	</select>
+
+	<!--根据Version删除-->
+	<delete id="deleteByVersion">
+		delete from
+			app_update
+		where version=#{version}
+	</delete>
+
+	<!--根据Version更新-->
+	<update id="updateByVersion" parameterType="com.easychat.entity.po.AppUpdate">
+		UPDATE app_update
+		<set>
+			<if test="bean.id!=null">
+				id=#{bean.id},
+			</if>
+			<if test="bean.version!=null">
+				version=#{bean.version},
+			</if>
+			<if test="bean.updateDesc!=null">
+				update_desc=#{bean.updateDesc},
+			</if>
+			<if test="bean.createTime!=null">
+				create_time=#{bean.createTime},
+			</if>
+			<if test="bean.status!=null">
+				status=#{bean.status},
+			</if>
+			<if test="bean.grayscaleUid!=null">
+				grayscale_uid=#{bean.grayscaleUid},
+			</if>
+			<if test="bean.fileType!=null">
+				file_type=#{bean.fileType},
+			</if>
+			<if test="bean.outerLink!=null">
+				outer_link=#{bean.outerLink},
+			</if>
+		</set>
+		where
+		version=#{version}
 	</update>
 
 </mapper>

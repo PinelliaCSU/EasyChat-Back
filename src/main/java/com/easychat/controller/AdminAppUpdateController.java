@@ -43,4 +43,19 @@ public class AdminAppUpdateController extends ABaseController{
         appUpdateService.saveUpdate(appUpdate,file);//文件已经到了服务器
         return getSuccessResponseVo(null);
     }
+
+    @RequestMapping("/delUpdate")
+    @GlobalInterceptor(checkAdmin = true)
+    public ResponseVO delUpdate(@NotNull Integer id){
+        appUpdateService.deleteUpdateById(id);
+        return getSuccessResponseVo(null);
+    }
+
+    @RequestMapping("/postUpdate")
+    @GlobalInterceptor(checkAdmin = true)
+    public ResponseVO postUpdate(@NotNull Integer id,@NotNull Integer status,String grayscaleUid) throws BusinessException {
+        appUpdateService.postUpdate(id,status,grayscaleUid);
+        return getSuccessResponseVo(null);
+    }
+
 }

@@ -12,6 +12,8 @@ import com.easychat.entity.vo.PaginationResultVO;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.AppUpdateMapper;
 import com.easychat.service.AppUpdateService;
+import com.easychat.utils.StringTools;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -36,6 +38,7 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 	private AppUpdateMapper<AppUpdate, AppUpdateQuery> appUpdateMapper;
 	@Resource
 	private AppConfig appConfig;
+
 	//根据条件查询列表
 	public List<AppUpdate> findListByParam(AppUpdateQuery param){
 		return this.appUpdateMapper.selectList(param);
@@ -87,10 +90,28 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 	public int updateUpdateById(AppUpdate bean, Integer id){
 		return this.appUpdateMapper.updateUpdateById(bean,id);
 	}
-
 	//根据Id删除
-	public int deleteUpdateById(Integer id){
+	public int deleteUpdateById(Integer id) throws BusinessException {
+		AppUpdate dbInfo = this.getUpdateById(id);
+		if(!AppUpdateStatusEnum.INIT.getStatus().equals(dbInfo.getStatus())){
+			throw new BusinessException(ResponseCodeEnum.CODE_600);//如果是灰度发布的状态，不让它更改
+		}//防止绕开前端
 		return this.appUpdateMapper.deleteUpdateById(id);
+	}
+
+	//根据Version查询
+	public AppUpdate getUpdateByVersion(String version){
+		return this.appUpdateMapper.selectUpdateByVersion(version);
+	}
+
+	//根据Version更新
+	public int updateUpdateByVersion(AppUpdate bean, String version){
+		return this.appUpdateMapper.updateUpdateByVersion(bean,version);
+	}
+
+	//根据Version删除
+	public int deleteUpdateByVersion(String version){
+		return this.appUpdateMapper.deleteUpdateByVersion(version);
 	}
 
 	@Override
@@ -99,9 +120,15 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 		if(fileTypeEnum == null){
 			throw new BusinessException(ResponseCodeEnum.CODE_600);
 		}
+		if(appUpdate.getId() != null){
+			AppUpdate dbInfo = this.getUpdateById(appUpdate.getId());
+			if(!AppUpdateStatusEnum.INIT.getStatus().equals(dbInfo.getStatus())){
+				throw new BusinessException(ResponseCodeEnum.CODE_600);//如果是灰度发布的状态，不让它更改
+			}
+		}
 
 		AppUpdateQuery updateQuery = new AppUpdateQuery();
-		updateQuery.setOrderBy("version desc");
+		updateQuery.setOrderBy("id desc");
 		updateQuery.setSimplePage(new SimplePage(0,1));
 		List<AppUpdate> appUpdateList = appUpdateMapper.selectList(updateQuery);
 		if(!appUpdateList.isEmpty()){
@@ -113,8 +140,14 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 			if(appUpdate.getId() == null && currentVersion <= dbVersion){
 				throw new BusinessException("当前版本必须大于历史版本");
 			}
-			if(appUpdate.getId() != null && currentVersion <= dbVersion && !appUpdate.getVersion().equals(lastestAppUpdate.getVersion())){
+			//目的是确保一定不能修改的比当前版本更高
+			if(appUpdate.getId() != null && currentVersion >= dbVersion && !appUpdate.getId().equals(lastestAppUpdate.getId())){
 				throw  new BusinessException("当前版本必须大于历史版本");
+			}
+
+			AppUpdate versionDb  = appUpdateMapper.selectUpdateByVersion(appUpdate.getVersion());
+			if(appUpdate.getId() != null && versionDb != null && appUpdate.getId().equals(appUpdate.getId())){
+				throw new BusinessException("版本号已经存在");
 			}
 		}
 
@@ -132,6 +165,25 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 			}
 			file.transferTo(new File(folder.getAbsoluteFile() + "/" + appUpdate.getId() + Constants.APP_EXE_SUFFIX));
 		}
+	}
+
+	@Override
+	public void postUpdate(Integer id, Integer status, String grayscaleUid) throws BusinessException {
+		AppUpdateStatusEnum statusEnum = AppUpdateStatusEnum.getByStatus(status);
+		if(statusEnum == null){
+			throw new BusinessException(ResponseCodeEnum.CODE_600);
+		}
+		if(AppUpdateStatusEnum.GRAYSCALE == statusEnum && StringTools.isEmpty(grayscaleUid)){
+			throw new BusinessException(ResponseCodeEnum.CODE_600);
+		}
+
+		if(AppUpdateStatusEnum.GRAYSCALE != statusEnum){
+			grayscaleUid = "";
+		}
+		AppUpdate appUpdate = new AppUpdate();
+		appUpdate.setStatus(status);
+		appUpdate.setGrayscaleUid(grayscaleUid);
+		appUpdateMapper.updateUpdateById(appUpdate,id);
 	}
 
 }
