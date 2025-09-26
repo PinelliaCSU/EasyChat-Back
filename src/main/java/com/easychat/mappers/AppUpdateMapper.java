@@ -25,6 +25,6 @@ public interface AppUpdateMapper<T,P> extends BaseMapper {
 
 	//根据Version删除
 	int deleteUpdateByVersion(@Param("version") String version);
-
-
+	//选择最新版本
+	T selectLatestUpdate(@Param("appVersion") String appVersion,@Param("uid") String uid);
 }

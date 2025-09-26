@@ -54,4 +54,6 @@ public interface AppUpdateService {
 	void saveUpdate(AppUpdate appUpdate, MultipartFile file) throws BusinessException, IOException;
 
 	void postUpdate(Integer id,Integer status,String grayscaleUid) throws BusinessException;
+
+	AppUpdate getLatestUpdate(String appVersion,String uid);
 }
