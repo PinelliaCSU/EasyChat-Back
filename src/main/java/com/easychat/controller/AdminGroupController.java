@@ -22,9 +22,9 @@ public class AdminGroupController extends ABaseController{
     private GroupInfoService groupInfoService;
 
 
-    @RequestMapping("/loadUser")
+    @RequestMapping("/loadGroup")
     @GlobalInterceptor(checkAdmin = true)
-    public ResponseVO loadUser(GroupInfoQuery query) {
+    public ResponseVO loadGroup(GroupInfoQuery query) {
         query.setOrderBy("create_time desc");
         query.setQueryMemberCount(true);
         query.setQueryMemberCount(true);
