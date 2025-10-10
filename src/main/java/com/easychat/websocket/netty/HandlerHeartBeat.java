@@ -6,10 +6,11 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.stereotype.Component;
 
 
 //心跳处理器
+@Component
 public class HandlerHeartBeat extends ChannelDuplexHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(HandlerHeartBeat.class);
@@ -22,7 +23,6 @@ public class HandlerHeartBeat extends ChannelDuplexHandler {
             }else if(e.state() == IdleState.WRITER_IDLE){
                 ctx.writeAndFlush("heart");
             }
-
 
         }
     }

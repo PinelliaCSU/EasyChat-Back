@@ -1,5 +1,6 @@
 package com.easychat.websocket.netty;
 
+import com.easychat.entity.config.AppConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -13,17 +14,34 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
-public class NettyWebSocketStarter {
+@Component
+public class NettyWebSocketStarter implements Runnable{
 
 
     private static final Logger logger = LoggerFactory.getLogger(NettyWebSocketStarter.class);
     private static EventLoopGroup bossGroup = new NioEventLoopGroup();
     private static EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-    public static void main(String[] args) throws InterruptedException {
+    @Resource
+    private  HandlerWebSocket handlerWebSocket;
+    @Resource
+    private AppConfig appConfig;
+
+    @PreDestroy
+    public void close(){
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+    }
+
+    @Override
+    public void run() {
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup);
@@ -41,12 +59,12 @@ public class NettyWebSocketStarter {
                             pipeline.addLast(new IdleStateHandler(6,0,0, TimeUnit.SECONDS));
                             pipeline.addLast(new HandlerHeartBeat());//心跳处理器
                             //将http协议升级为ws协议，对websocket支持
-                            pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
-                            pipeline.addLast(new HandlerWebSocket());
+                            pipeline.addLast(new WebSocketServerProtocolHandler("/ws",null,true,64*1024,true,true,10000L));
+                            pipeline.addLast(handlerWebSocket);
                         }
                     });
-            ChannelFuture channelFuture = bootstrap.bind(5051).sync();
-            logger.info("Netty WebSocket Server started on port 5051!!!");
+            ChannelFuture channelFuture = bootstrap.bind(appConfig.getWsPort()).sync();
+            logger.info("Netty服务器启动成功，端口：{}",appConfig.getWsPort());
             channelFuture.channel().closeFuture().sync();
 
         } catch (InterruptedException e) {

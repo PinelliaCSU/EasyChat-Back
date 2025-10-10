@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 public class AppConfig {
 
     //端口
-    @Value("$(ws.port)")
-    private String wsPort;
+    @Value("${ws.port}")
+    private int wsPort;
     //文件目录
     @Value("$(project,folder)")
     private String projectFolder;
@@ -17,7 +17,7 @@ public class AppConfig {
     @Value("$(admin.email")
     private String adminEmail;
 
-    public String getWsPort() {
+    public int getWsPort() {
         return wsPort;
     }
 
