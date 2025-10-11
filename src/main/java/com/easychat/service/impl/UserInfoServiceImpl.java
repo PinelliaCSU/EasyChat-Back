@@ -4,13 +4,16 @@ import com.easychat.entity.config.AppConfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
+import com.easychat.entity.po.UserContact;
 import com.easychat.entity.po.UserInfoBeauty;
+import com.easychat.entity.query.UserContactQuery;
 import com.easychat.entity.query.UserInfoQuery;
 import com.easychat.entity.query.SimplePage;
 import com.easychat.entity.po.UserInfo;
 import com.easychat.entity.vo.PaginationResultVO;
 import com.easychat.entity.vo.UserInfoVO;
 import com.easychat.exception.BusinessException;
+import com.easychat.mappers.UserContactMapper;
 import com.easychat.mappers.UserInfoBeautyMapper;
 import com.easychat.mappers.UserInfoMapper;
 import com.easychat.redis.RedisComponent;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.easychat.service.UserInfoService;
@@ -46,6 +50,8 @@ public class UserInfoServiceImpl implements UserInfoService{
 	private AppConfig appConfig;
     @Autowired
     private RedisComponent redisComponent;
+    @Autowired
+    private UserContactMapper userContactMapper;
 
 	/**
 	 * 根据条件查询列表
@@ -212,10 +218,21 @@ public class UserInfoServiceImpl implements UserInfoService{
 
 		//TODO 查询我的组群
 		//TODO 查询我的联系人
+		UserContactQuery contactQuery = new UserContactQuery();
+		contactQuery.setUserId(userInfo.getUserId());
+		contactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+		List<UserContact> contactList = userContactMapper.selectList(contactQuery);
+		List<String> contactIdList = contactList.stream().map(item->item.getContactId()).collect(Collectors.toList());
+		redisComponent.cleanUserContact(userInfo.getUserId());
+		if(!contactIdList.isEmpty()){
+			redisComponent.addUSerContactBatch(userInfo.getUserId(), contactIdList);//正常情况下不可能没有，加一层保险
+		}
+
+
 		TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(userInfo);
 		Long lastHeartBeat = redisComponent.getUerHeartBeat(userInfo.getUserId());
 		if(lastHeartBeat!=null){
-			throw new BusinessException("");
+			throw new BusinessException("此账号已经在别处登录，请退出后再登录");
 		}
 
 		//保存登录信息到redis中

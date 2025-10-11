@@ -3,6 +3,9 @@ package com.easychat.entity.constants;
 import com.easychat.entity.enums.UserContactTypeEnum;
 
 public class Constants {
+
+    public static final  Integer REDIS_KEY_EXPIRES_HEART_BEAT = 6;
+
     public static final String REDIS_KEY_CHECK_CODE = "easychat:checkCode:";
 
     public static final Integer REDIS_TIME_1MIN = 60;
@@ -16,6 +19,8 @@ public class Constants {
     public static final String ROBOT_UID = UserContactTypeEnum.USER.getPrefix() + "robot";
     public static final String REDIS_KEY_SYS_SETTING = "easychat:syssetting";
 
+    //用户联系人列表
+    public static  final String REDIS_KEY_USER_CONTACT = "easychat:ws:user:contact:";
 
     public static final Integer USERID_LENGTH = 11;//用户ID的长度
     public static final Integer GROUP_ID_LENGTH = 11;//群组ID的长度

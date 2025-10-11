@@ -1,10 +1,10 @@
 package com.easychat.websocket.netty;
 
 import com.easychat.entity.config.AppConfig;
+import com.easychat.websocket.ChannelContextUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.sctp.nio.NioSctpServerChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
@@ -14,7 +14,6 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -56,7 +55,7 @@ public class NettyWebSocketStarter implements Runnable{
                             //聚合解码 保证接受到的http请求的完整性
                             pipeline.addLast(new HttpObjectAggregator(64 * 1024));
                             //心跳,读超时时间，写超时时间，所有类型的超时时间，单位
-                            pipeline.addLast(new IdleStateHandler(6,0,0, TimeUnit.SECONDS));
+                            pipeline.addLast(new IdleStateHandler(60,0,0, TimeUnit.SECONDS));
                             pipeline.addLast(new HandlerHeartBeat());//心跳处理器
                             //将http协议升级为ws协议，对websocket支持
                             pipeline.addLast(new WebSocketServerProtocolHandler("/ws",null,true,64*1024,true,true,10000L));
