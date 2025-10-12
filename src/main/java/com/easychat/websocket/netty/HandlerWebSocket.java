@@ -49,6 +49,7 @@ public class HandlerWebSocket extends SimpleChannelInboundHandler<TextWebSocketF
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.info("有链接断开...");
+        channelContextUtils.removeContext(ctx.channel());
     }
 
     @Override

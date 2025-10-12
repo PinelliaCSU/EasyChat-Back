@@ -1,14 +1,22 @@
 package com.easychat.websocket;
 
+import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.WsInitData;
 import com.easychat.entity.enums.UserContactTypeEnum;
+import com.easychat.entity.po.ChatSessionUser;
 import com.easychat.entity.po.UserInfo;
+import com.easychat.entity.query.ChatSessionUserQuery;
 import com.easychat.entity.query.UserInfoQuery;
+import com.easychat.mappers.ChatSessionUserMapper;
 import com.easychat.mappers.UserInfoMapper;
 import com.easychat.redis.RedisComponent;
+import com.easychat.service.ChatSessionUserService;
+import com.easychat.utils.StringTools;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
@@ -33,6 +41,9 @@ public class ChannelContextUtils {
     RedisComponent redisComponent;
     @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
+    @Resource
+    private ChatSessionUserService chatSessionUserService;
+
     //建立用户ID与网络连接通道的映射关系
     public void addContext(String userId, Channel channel) {
         // 获取通道的唯一ID
@@ -66,10 +77,31 @@ public class ChannelContextUtils {
         redisComponent.saveUerHeartBeat(userId);
 
         //更新用户最后连续时间
-        UserInfo userInfo = new UserInfo();
-        userInfo.setLastLoginTime(new Date());
-        userInfoMapper.updateByUserId(userInfo,userId);
+        UserInfo updateInfo = new UserInfo();
+        updateInfo.setLastLoginTime(new Date());
+        userInfoMapper.updateByUserId(updateInfo,userId);
+        //给用户发消息
+        UserInfo userInfo = userInfoMapper.selectByUserId(userId);
+        Long sourceLastOffTime = userInfo.getLastOffTime().getTime();
+        Long lastOffTime = sourceLastOffTime;
+        if(sourceLastOffTime != null && System.currentTimeMillis()-sourceLastOffTime > Constants.MillisSECOND_THREEDAYS){
+            lastOffTime = Constants.MillisSECOND_THREEDAYS;//最多只查询三天以前
+        }
 
+        //1.查询会话信息 是所有的，保证不同设备的同步
+        ChatSessionUserQuery sessionUserQuery = new ChatSessionUserQuery();
+        sessionUserQuery.setUserId(userId);
+        sessionUserQuery.setOrderBy("last_receive_time desc");
+        List<ChatSessionUser> chatSessionUserList = chatSessionUserService.findListByParam(sessionUserQuery);
+
+        WsInitData wsInitData = new WsInitData();
+        wsInitData.setChatSessionUserList(chatSessionUserList);
+        //2.查询聊天消息
+        //3.查询好友申请
+        //发消息
+    }
+
+    public void sendMsg(){
 
     }
 
@@ -85,5 +117,18 @@ public class ChannelContextUtils {
         group.add(channel);
     }
 
+
+    public void removeContext(Channel channel) {
+        Attribute<String> attribute = channel.attr(AttributeKey.valueOf(channel.id().toString()));
+        String userId = attribute.get();
+        if(!StringTools.isEmpty(userId)){
+            USER_CONTEXT_MAP.remove(userId);
+        }
+        redisComponent.removeUerHeartBeat(userId);
+        //更新用户最后离线时间
+        UserInfo userInfo = new UserInfo();
+        userInfo.setLastOffTime(new Date());
+        userInfoMapper.updateByUserId(userInfo,userId);
+    }
 
 }

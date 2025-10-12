@@ -22,7 +22,9 @@ public class RedisComponent {
     public void saveUerHeartBeat(String userId){
         redisUtils.setex(Constants.REDIS_KEY_WS_USER_HEART_BEAT + userId,System.currentTimeMillis(),Constants.REDIS_KEY_EXPIRES_HEART_BEAT);
     }
-
+    public void removeUerHeartBeat(String userId){
+        redisUtils.delete(Constants.REDIS_KEY_WS_USER_HEART_BEAT + userId);
+    }
 
     //在redis中存储，分为两个，一个是Token，一个是UserId
     public void saveTokenUserInfoDto(TokenUserInfoDto tokenUserInfoDto){

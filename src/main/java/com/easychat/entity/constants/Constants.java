@@ -21,6 +21,8 @@ public class Constants {
 
     //用户联系人列表
     public static  final String REDIS_KEY_USER_CONTACT = "easychat:ws:user:contact:";
+    //三天以前的毫秒数
+    public static final Long MillisSECOND_THREEDAYS = 3 * 24 * 60 * 60 * 1000L;
 
     public static final Integer USERID_LENGTH = 11;//用户ID的长度
     public static final Integer GROUP_ID_LENGTH = 11;//群组ID的长度
