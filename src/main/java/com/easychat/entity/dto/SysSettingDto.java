@@ -18,7 +18,7 @@ public class SysSettingDto implements Serializable {
     private Integer maxFileSize = 5;
     private String robotUid = Constants.ROBOT_UID;
     private String robotNickName = "EasyChat";
-    private String robotWelcome = "欢迎使用EasyChat";
+    private String robotWelcome = "欢迎使用EasyChat,by Pinellia";
 
 
     public Integer getMaxGroupCount() {

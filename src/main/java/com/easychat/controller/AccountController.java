@@ -11,6 +11,7 @@ import com.easychat.redis.RedisComponent;
 import com.easychat.redis.RedisUtils;
 import com.easychat.service.UserInfoService;
 import com.easychat.utils.CopyTools;
+import com.easychat.websocket.MessageHandler;
 import com.wf.captcha.ArithmeticCaptcha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,8 @@ public class AccountController extends ABaseController{
     private UserInfoService userInfoService;
     @Resource
     private RedisComponent redisComponent;
-
+    @Resource
+    private MessageHandler messageHandler;
 
     @RequestMapping("/checkCode")
     public ResponseVO checkCode(){

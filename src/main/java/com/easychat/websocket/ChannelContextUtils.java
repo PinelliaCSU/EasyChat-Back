@@ -144,7 +144,7 @@ public class ChannelContextUtils {
         sendMsg(messageSendDto,userId);
     }
 
-    public static void sendMsg(MessageSendDto messageSendDto,String receiveId) {
+    public void sendMsg(MessageSendDto messageSendDto,String receiveId) {
         if(receiveId == null){
             return;
         }

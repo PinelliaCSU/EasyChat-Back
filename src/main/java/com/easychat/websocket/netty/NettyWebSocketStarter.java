@@ -1,6 +1,7 @@
 package com.easychat.websocket.netty;
 
 import com.easychat.entity.config.AppConfig;
+import com.easychat.utils.StringTools;
 import com.easychat.websocket.ChannelContextUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -62,7 +63,13 @@ public class NettyWebSocketStarter implements Runnable{
                             pipeline.addLast(handlerWebSocket);
                         }
                     });
-            ChannelFuture channelFuture = bootstrap.bind(appConfig.getWsPort()).sync();
+            Integer wsPort = appConfig.getWsPort();
+            String wsPortStr = System.getProperty("ws.port");//系统配置文件优先级更高
+            if(!StringTools.isEmpty(wsPortStr)){
+                wsPort = Integer.parseInt(wsPortStr);
+            }
+
+            ChannelFuture channelFuture = bootstrap.bind(wsPort).sync();
             logger.info("Netty服务器启动成功，端口：{}",appConfig.getWsPort());
             channelFuture.channel().closeFuture().sync();
 

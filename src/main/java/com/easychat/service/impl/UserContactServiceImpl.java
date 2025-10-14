@@ -1,6 +1,7 @@
 package com.easychat.service.impl;
 
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.dto.UserContactSearchResultDto;
@@ -14,6 +15,7 @@ import com.easychat.redis.RedisComponent;
 import com.easychat.service.UserContactApplyService;
 import com.easychat.utils.CopyTools;
 import com.easychat.utils.StringTools;
+import com.easychat.websocket.ChannelContextUtils;
 import jodd.util.ArraysUtil;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,8 @@ public class UserContactServiceImpl implements UserContactService{
 	private ChatSessionUserMapper<ChatSessionUser,ChatSessionUserQuery> chatSessionUserMapper;
 	@Resource
 	private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
+	@Resource
+	private ChannelContextUtils channelContextUtils;
 	/**
 	 * 根据条件查询列表
 	 */
@@ -242,7 +246,11 @@ public class UserContactServiceImpl implements UserContactService{
 		}
 
 		if(dbApply == null || !UserContactApplyStatusEnum.INIT.getStatus().equals(dbApply.getStatus())){
-			//TODO 发送ws消息
+			// 发送ws消息,关键在于跨服务器时，消息的同步，不能只考虑只有一个服务器的情况
+			//于是我们使用 redisson（就是把服务器连上redis（当然也可以很多，也是一个集群，不过是运维层面的事情），实现消息分发，每个服务器都选择分发一次）
+			MessageSendDto messageSendDto = new MessageSendDto();
+			messageSendDto.setMessageType(MessageTypeEnum.CONTACT_APPLY.getType());
+
 		}
 
 		return joinType;
