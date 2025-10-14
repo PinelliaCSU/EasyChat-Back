@@ -5,9 +5,11 @@ import com.easychat.entity.enums.UserContactTypeEnum;
 import com.easychat.exception.BusinessException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class StringTools {
 
@@ -78,5 +80,22 @@ public class StringTools {
     //对密码进行md5加密
     public static final String encodeMd5(String originStr){
         return StringTools.isEmpty(originStr) ? "" : DigestUtils.md5Hex(originStr);
+    }
+
+    public static String cleanHtmlTag(String content){
+        if (isEmpty(content)) {
+            return content;
+        }
+        content = content.replaceAll("<", "&lt;");
+        content = content.replaceAll(">", "&gt;");
+        content = content.replace("\r\n","<br>");
+        content = content.replace("\n","<br>");
+        return content;
+    }
+
+    //保证会话Id在两个人之间永远一致
+    public static final String getChatSessionId4User(String [] userIds){
+        Arrays.sort(userIds);//无论传递的次序如何，不会影响结果
+        return encodeMd5(StringUtils.join(userIds,","));
     }
 }

@@ -1,8 +1,10 @@
 package com.easychat.entity.query;
 
 
+import java.util.List;
+
 /**
- * @author 竝inellia
+ * @author Pinellia
  * @Description: 聊天消息表查询对象
  * @date: 2025/10/12
  */
@@ -84,6 +86,27 @@ public class ChatMessageQuery extends BaseQuery{
 	 * 状态 0:正在发送 1:已发送
 	 */
 	private Integer status;
+
+	//所有的联系人id
+	private List<String> contactIdList;
+
+	public Long getLastReceiveTime() {
+		return lastReceiveTime;
+	}
+
+	public void setLastReceiveTime(Long lastReceiveTime) {
+		this.lastReceiveTime = lastReceiveTime;
+	}
+
+	Long lastReceiveTime;
+
+	public List<String> getContactIdList() {
+		return contactIdList;
+	}
+
+	public void setContactIdList(List<String> contactIdList) {
+		this.contactIdList = contactIdList;
+	}
 
 	public void setMessageId(Long messageId) {
 		this.messageId = messageId;

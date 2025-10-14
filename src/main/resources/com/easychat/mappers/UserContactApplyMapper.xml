@@ -66,6 +66,9 @@
 		<if test="query.applyInfoFuzzy!=null and query.applyInfoFuzzy!=''">
 			and apply_info like concat('%',#{query.applyInfoFuzzy},'%')
 		</if>
+		<if test="query.lastApplyTimestamp != null">
+			and last_apply_time >= #{query.lastApplyTimestamp}
+		</if>
     </sql>
     <!--通用查询条件-->
     <sql id="query_condition">
