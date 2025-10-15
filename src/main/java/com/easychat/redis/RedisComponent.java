@@ -69,6 +69,15 @@ public class RedisComponent {
         redisUtils.lpushAll(Constants.REDIS_KEY_USER_CONTACT + userId,contactList,Constants.REDIS_KEY_EXPIRES_DAY * 2);
     }
 
+    //单独添加联系人
+    public  void addUserContact(String userId, String contactId){
+        List<String> contactIdList = getUserContactList(userId);
+        if(contactIdList.contains(contactId)){
+            return;
+        }//如果已经包含在了联系人列表中，当然返回
+
+        redisUtils.lpush(Constants.REDIS_KEY_USER_CONTACT + userId,contactId,Constants.REDIS_KEY_EXPIRES_DAY * 2);
+    }
     //获取联系人
     public List<String> getUserContactList(String userId){
         return (List<String>) redisUtils.getQueueList(Constants.REDIS_KEY_USER_CONTACT + userId);

@@ -18,6 +18,7 @@ import com.easychat.utils.StringTools;
 import com.easychat.websocket.ChannelContextUtils;
 import com.easychat.websocket.MessageHandler;
 import jodd.util.ArraysUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ public class UserContactServiceImpl implements UserContactService{
 	private ChatSessionUserMapper<ChatSessionUser,ChatSessionUserQuery> chatSessionUserMapper;
 	@Resource
 	private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
+    @Autowired
+    private MessageHandler messageHandler;
 
 	/**
 	 * 根据条件查询列表
@@ -221,9 +224,68 @@ public class UserContactServiceImpl implements UserContactService{
 		//批量插入
 		userContactMapper.insertOrUpdate(contactList);
 
-		//TODO 添加缓存
+		//添加缓存
+		if(UserContactTypeEnum.USER.getType().equals(contactType)){
+			redisComponent.addUserContact(receiveUserId,applyUserId);
+		}
+		redisComponent.addUserContact(applyUserId,contactId);//如果是好友，两个人都要互相存储
+		//创建会话，发送消息
 
-		//TODO 创建会话，发送消息
+		String sessionId = null;
+		List<ChatSessionUser> chatSessionUserList = new ArrayList<>();
+		if(UserContactTypeEnum.USER.getType().equals(contactType)){
+			sessionId = StringTools.getChatSessionId4User(new String[]{applyUserId,contactId});
+
+			//创建会话
+			ChatSession chatSession = new ChatSession();
+			chatSession.setSessionId(sessionId);
+			chatSession.setLastMessage(applyInfo);
+			chatSession.setLastReceiveTime(curDate.getTime());
+
+			this.chatSessionMapper.insertOrUpdate(chatSession);
+			//创建申请人session
+
+			ChatSessionUser applySessionUser = new ChatSessionUser();
+			applySessionUser.setUserId(applyUserId);
+			applySessionUser.setContactId(contactId);
+			applySessionUser.setSessionId(sessionId);
+			UserInfo contactUser = this.userInfoMapper.selectByUserId(contactId);
+			applySessionUser.setContactName(contactUser.getNickName());
+			chatSessionUserList.add(applySessionUser);
+
+			//创建接收人session
+			ChatSessionUser contactSessionUser = new ChatSessionUser();
+			contactSessionUser.setUserId(contactId);
+			contactSessionUser.setContactId(applyUserId);
+			contactSessionUser.setSessionId(sessionId);
+			UserInfo applyUserInfo = this.userInfoMapper.selectByUserId(applyUserId);
+			contactSessionUser.setContactName(applyUserInfo.getNickName());
+			this.chatSessionUserMapper.insertOrUpdateBatch(chatSessionUserList);
+			//记录消息表
+			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setSessionId(sessionId);
+			chatMessage.setMessageType(MessageTypeEnum.ADD_FRIEND.getType());
+			chatMessage.setMessageContent(applyInfo);
+			chatMessage.setSendUserId(applyUserId);
+			chatMessage.setSendUserNickName(applyUserInfo.getNickName());
+			chatMessage.setSendTime(curDate.getTime());
+			chatMessage.setContactId(contactId);
+			chatMessage.setContactType(UserContactTypeEnum.USER.getType());
+			chatMessageMapper.insert(chatMessage);
+
+			MessageSendDto messageSendDto = CopyTools.copy(chatMessage,MessageSendDto.class);
+			//发送给申请还有接受的人
+			messageHandler.sendMessage(messageSendDto);
+
+			messageSendDto.setMessageType(MessageTypeEnum.ADD_FRIEND_SELF.getType());
+			messageSendDto.setContactId(applyUserId);
+			messageSendDto.setExtendData(contactUser);
+			messageHandler.sendMessage(messageSendDto);
+		}else{
+			sessionId = StringTools.getChatSession4Group(contactId);
+		}//对于不同的类型，生成不同的sessionId
+
+
 	}
 
 	@Override

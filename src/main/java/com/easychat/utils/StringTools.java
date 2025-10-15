@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Stack;
 
 public class StringTools {
 
@@ -97,5 +98,9 @@ public class StringTools {
     public static final String getChatSessionId4User(String [] userIds){
         Arrays.sort(userIds);//无论传递的次序如何，不会影响结果
         return encodeMd5(StringUtils.join(userIds,","));
+    }
+
+    public static  final String getChatSession4Group(String groupId){
+        return encodeMd5(groupId);
     }
 }
