@@ -30,10 +30,10 @@ import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +58,8 @@ public class ChannelContextUtils {
     private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
     @Resource
     private UserContactApplyMapper<UserContactApply,UserContactApplyQuery> userContactApplyMapper;
+    @Autowired
+    private MessageHandler messageHandler;
 
 
     //建立用户ID与网络连接通道的映射关系
@@ -144,19 +146,7 @@ public class ChannelContextUtils {
         sendMsg(messageSendDto,userId);
     }
 
-    public void sendMsg(MessageSendDto messageSendDto,String receiveId) {
-        if(receiveId == null){
-            return;
-        }
-        Channel sendChannel = USER_CONTEXT_MAP.get(receiveId);
-        if(sendChannel == null){
-            return;
-        }
-        //相对于客户端而言，联系人就是发送人。所以这里转一下再发送
-        messageSendDto.setContactId(messageSendDto.getSendUserId());
-        messageSendDto.setContactName(messageSendDto.getSendUserNickName());
-        sendChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
-    }
+
 
     private void add2Group(String groupId, Channel channel) {
         ChannelGroup group = GROUP_CONTEXT_MAP.get(groupId);
@@ -184,4 +174,69 @@ public class ChannelContextUtils {
         userInfoMapper.updateByUserId(userInfo,userId);
     }
 
+
+    public void sendMessage(MessageSendDto messageSendDto){
+        UserContactTypeEnum userContactTypeEnum = UserContactTypeEnum.getByPrefix(messageSendDto.getContactId());
+        switch (userContactTypeEnum){
+            case GROUP:
+                sendToGroup(messageSendDto);
+                break;
+            case USER:
+                sendToUSer(messageSendDto);
+                break;
+        }
+
+
+    }
+
+    //发送给用户
+    private void sendToUSer(MessageSendDto messageSendDto){
+        String contactId = messageSendDto.getContactId();
+        if(StringTools.isEmpty(contactId)){
+            return;
+        }
+        sendMsg(messageSendDto,contactId);
+        //强制下线
+        if(MessageTypeEnum.FORCE_OFF_LINE.getType().equals(messageSendDto.getMessageType())){
+            closeContext(contactId);
+        }
+    }
+
+    public void closeContext(String userId){
+        if(StringTools.isEmpty(userId)){
+            return;
+        }
+        redisComponent.cleanUserTokenByUserId(userId);//清除Token
+        Channel channel = USER_CONTEXT_MAP.get(userId);
+        if(channel == null){
+            return;
+        }
+        channel.close();
+    }
+
+
+    //发送给群组
+    private void sendToGroup(MessageSendDto messageSendDto){
+        if(StringTools.isEmpty(messageSendDto.getContactId())){
+            return;
+        }
+
+        ChannelGroup group = GROUP_CONTEXT_MAP.get(messageSendDto.getContactId());
+        if(group == null){
+            return;
+        }
+        group.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
+    }
+
+
+    public void sendMsg(MessageSendDto messageSendDto,String receiveId) {
+        Channel sendChannel = USER_CONTEXT_MAP.get(receiveId);
+        if(sendChannel == null){
+            return;
+        }
+        //相对于客户端而言，联系人就是发送人。所以这里转一下再发送
+        messageSendDto.setContactId(messageSendDto.getSendUserId());
+        messageSendDto.setContactName(messageSendDto.getSendUserNickName());
+        sendChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
+    }
 }

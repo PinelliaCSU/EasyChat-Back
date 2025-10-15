@@ -1,5 +1,6 @@
 package com.easychat.service;
 
+import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.query.UserContactApplyQuery;
 import com.easychat.entity.po.UserContactApply;
 import com.easychat.entity.vo.PaginationResultVO;
@@ -79,5 +80,5 @@ public interface UserContactApplyService{
 
 	 void dealWithApply(String userId,Integer applyId,Integer status) throws BusinessException;
 
-
+	Integer applyAdd(TokenUserInfoDto tokenUserInfoDto, String contactId, String applyInfo) throws BusinessException;
 }

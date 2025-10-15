@@ -67,7 +67,7 @@ public interface UserContactService{
 
 	 UserContactSearchResultDto searchContact(String userId, String contactId);
 
-	 Integer applyAdd(TokenUserInfoDto tokenUserInfoDto,String contactId,String applyInfo) throws BusinessException;
+
 
 	void addContact(String applyUserId, String receiveUserId, String contactId, Integer contactType, String applyInfo) throws BusinessException;
 

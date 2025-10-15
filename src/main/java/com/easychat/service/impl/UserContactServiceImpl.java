@@ -16,6 +16,7 @@ import com.easychat.service.UserContactApplyService;
 import com.easychat.utils.CopyTools;
 import com.easychat.utils.StringTools;
 import com.easychat.websocket.ChannelContextUtils;
+import com.easychat.websocket.MessageHandler;
 import jodd.util.ArraysUtil;
 import org.springframework.stereotype.Service;
 
@@ -42,8 +43,7 @@ public class UserContactServiceImpl implements UserContactService{
 	private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
 	@Resource
 	private GroupInfoMapper<GroupInfo, GroupInfoQuery> groupInfoMapper;
-	@Resource
-	private UserContactApplyMapper<UserContactApply, UserContactApplyQuery> userContactApplyMapper;
+
 	@Resource
 	private RedisComponent redisComponent;
 	@Resource
@@ -52,8 +52,7 @@ public class UserContactServiceImpl implements UserContactService{
 	private ChatSessionUserMapper<ChatSessionUser,ChatSessionUserQuery> chatSessionUserMapper;
 	@Resource
 	private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
-	@Resource
-	private ChannelContextUtils channelContextUtils;
+
 	/**
 	 * 根据条件查询列表
 	 */
@@ -179,82 +178,7 @@ public class UserContactServiceImpl implements UserContactService{
 		return resultDto;
 	}
 
-	@Override
-	@Transactional(rollbackFor = Exception.class)
-	public Integer applyAdd(TokenUserInfoDto tokenUserInfoDto, String contactId, String applyInfo) throws BusinessException {
-		UserContactTypeEnum typeEnum = UserContactTypeEnum.getByPrefix(contactId);
-		if(typeEnum==null){
-			throw new BusinessException(ResponseCodeEnum.CODE_600);
-		}
-		//申请人
-		String applyUserId = tokenUserInfoDto.getUserId();
-		//默认申请信息
-		applyInfo = StringTools.isEmpty(applyInfo)? String.format(Constants.APPLY_INFO_TEMPLATE,tokenUserInfoDto.getNickName()) :applyInfo;
 
-		Long curTime = System.currentTimeMillis();
-
-		Integer joinType = null;
-		String receiveUserId = contactId;
-
-		//查询对方好友是否添加，如果已拉黑则无法被添加
-		UserContact userContact = userContactMapper.selectByUserIdAndContactId(applyUserId,contactId);
-		if(userContact != null &&
-				ArraysUtil.contains(new Integer[]{UserContactStatusEnum.BLACKLIST_BE.getStatus(),
-						UserContactStatusEnum.BLACKLIST_BE_FIRST.getStatus()},userContact.getStatus())){
-			throw new BusinessException("对方已将你拉黑，无法添加");
-		}
-		if(UserContactTypeEnum.GROUP == typeEnum){
-			GroupInfo groupInfo = this.groupInfoMapper.selectByGroupId(contactId);
-			if(groupInfo==null || GroupStatusEnum.DISSOLUTION.getStatus().equals(groupInfo.getStatus())){
-				throw new BusinessException("群聊已被解散或不存在");
-			}
-
-			receiveUserId = groupInfo.getGroupOwnerId();
-			joinType = groupInfo.getJoinType();
-		}else {
-			UserInfo userInfo = this.userInfoMapper.selectByUserId(contactId);
-			if(userInfo == null){
-				throw new BusinessException(ResponseCodeEnum.CODE_600);
-			}
-			joinType = userInfo.getJoinType();
-		}
-
-		//直接加入不用记录申请记录
-		if(JoinTypeEnum.JOIN.getType().equals(joinType)){
-			this.addContact(applyUserId,receiveUserId,contactId,typeEnum.getType(),applyInfo);//添加联系人
-			return joinType;
-		}
-
-		UserContactApply dbApply = this.userContactApplyMapper.selectByApplyUserIdAndReceiveUserIdAndContactId(applyUserId,receiveUserId,contactId);
-		if(dbApply==null){
-			UserContactApply contactApply = new UserContactApply();
-			contactApply.setApplyUserId(applyUserId);
-			contactApply.setContactType(typeEnum.getType());
-			contactApply.setReceiveUserId(receiveUserId);
-			contactApply.setContactId(contactId);
-			contactApply.setLastApplyTime(curTime);
-			contactApply.setStatus(UserContactApplyStatusEnum.INIT.getStatus());
-			contactApply.setApplyInfo(applyInfo);
-			this.userContactApplyMapper.insert(contactApply);
-		}else{
-			//更新状态
-			UserContactApply contactApply = new UserContactApply();
-			contactApply.setStatus(UserContactApplyStatusEnum.INIT.getStatus());
-			contactApply.setLastApplyTime(curTime);
-			contactApply.setApplyInfo(applyInfo);
-			this.userContactApplyMapper.updateByApplyId(contactApply,dbApply.getApplyId());
-		}
-
-		if(dbApply == null || !UserContactApplyStatusEnum.INIT.getStatus().equals(dbApply.getStatus())){
-			// 发送ws消息,关键在于跨服务器时，消息的同步，不能只考虑只有一个服务器的情况
-			//于是我们使用 redisson（就是把服务器连上redis（当然也可以很多，也是一个集群，不过是运维层面的事情），实现消息分发，每个服务器都选择分发一次）
-			MessageSendDto messageSendDto = new MessageSendDto();
-			messageSendDto.setMessageType(MessageTypeEnum.CONTACT_APPLY.getType());
-
-		}
-
-		return joinType;
-	}
 
 
 	@Override

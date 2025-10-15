@@ -37,6 +37,14 @@ public class RedisComponent {
         return tokenUserInfoDto;
     }
 
+    public void cleanUserTokenByUserId(String userId){
+        String token = (String) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN_USERID + userId);
+        if(token == null){
+            return;
+        }
+        redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN + token);
+    }
+
 
     public SysSettingDto getSysSetting(){
         SysSettingDto sysSettingDto = (SysSettingDto) redisUtils.get(Constants.REDIS_KEY_SYS_SETTING);
