@@ -21,6 +21,7 @@ import jodd.util.ArraysUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,9 +54,10 @@ public class UserContactServiceImpl implements UserContactService{
 	private ChatSessionUserMapper<ChatSessionUser,ChatSessionUserQuery> chatSessionUserMapper;
 	@Resource
 	private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
-    @Autowired
+    @Resource
     private MessageHandler messageHandler;
-
+	@Resource
+	private ChannelContextUtils channelContextUtils;
 	/**
 	 * 根据条件查询列表
 	 */
@@ -283,6 +285,53 @@ public class UserContactServiceImpl implements UserContactService{
 			messageHandler.sendMessage(messageSendDto);
 		}else{
 			sessionId = StringTools.getChatSession4Group(contactId);
+
+			ChatSessionUser chatSessionUser = new ChatSessionUser();
+			chatSessionUser.setUserId(applyUserId);
+			chatSessionUser.setContactId(contactId);
+			GroupInfo groupInfo = this.groupInfoMapper.selectByGroupId(contactId);
+			chatSessionUser.setContactName(groupInfo.getGroupName());
+			chatSessionUser.setSessionId(sessionId);
+			this.chatSessionUserMapper.insertOrUpdate(chatSessionUser);
+
+
+
+			UserInfo applyUSerInfo = this.userInfoMapper.selectByUserId(applyUserId);
+			String sendMessage = String.format(MessageTypeEnum.ADD_GROUP.getInitMessage(),applyUSerInfo.getNickName());
+
+			//增加session信息
+			ChatSession chatSession = new ChatSession();
+			chatSession.setSessionId(sessionId);
+			chatSession.setLastReceiveTime(curDate.getTime());
+			chatSession.setLastMessage(sendMessage);
+			//增加聊天消息
+			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setSessionId(sessionId);
+			chatMessage.setMessageType(MessageTypeEnum.ADD_GROUP.getType());
+			chatMessage.setMessageContent(sendMessage);
+			chatMessage.setSendTime(curDate.getTime());
+			chatMessage.setContactId(contactId);
+			chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
+			chatMessage.setStatus(MessageSatusEnum.SENDED.getStatus());
+			this.chatMessageMapper.insert(chatMessage);
+
+			redisComponent.addUserContact(applyUserId,contactId);
+			channelContextUtils.addUser2Group(applyUserId,groupInfo.getGroupId());
+
+
+			//发送消息
+			MessageSendDto messageSendDto  = CopyTools.copy(chatMessage,MessageSendDto.class);
+			messageSendDto.setContactId(contactId);
+			//获取群人数
+			UserContactQuery userContactQuery = new UserContactQuery();
+			userContactQuery.setContactId(contactId);
+			userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+			Integer memberCount = this.userContactMapper.selectCount(userContactQuery);
+			messageSendDto.setMemberCount(memberCount);
+			messageSendDto.setContactName(groupInfo.getGroupName());
+
+			messageHandler.sendMessage(messageSendDto);
+
 		}//对于不同的类型，生成不同的sessionId
 
 

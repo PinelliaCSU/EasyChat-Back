@@ -146,7 +146,10 @@ public class ChannelContextUtils {
         sendMsg(messageSendDto,userId);
     }
 
-
+    public void addUser2Group(String userId, String groupId) {
+        Channel channel = USER_CONTEXT_MAP.get(userId);
+        add2Group(groupId, channel);
+    }
 
     private void add2Group(String groupId, Channel channel) {
         ChannelGroup group = GROUP_CONTEXT_MAP.get(groupId);

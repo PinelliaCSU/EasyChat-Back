@@ -61,6 +61,16 @@ public class ChatSessionUser implements Serializable{
 
 	private Integer contactType;
 
+	public Long getLastReceiveTime() {
+		return lastReceiveTime;
+	}
+
+	public void setLastReceiveTime(Long lastReceiveTime) {
+		this.lastReceiveTime = lastReceiveTime;
+	}
+
+	private Long lastReceiveTime;
+
 	public Integer getMemberCount() {
 		return memberCount;
 	}
