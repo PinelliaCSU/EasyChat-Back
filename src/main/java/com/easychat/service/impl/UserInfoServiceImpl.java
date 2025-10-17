@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 用户信息对应的ServiceImpl
  * @date: 2025/07/23
  */

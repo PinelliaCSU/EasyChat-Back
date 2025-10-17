@@ -15,6 +15,7 @@ import com.easychat.entity.query.ChatSessionUserQuery;
 import com.easychat.entity.query.UserContactApplyQuery;
 import com.easychat.entity.query.UserInfoQuery;
 import com.easychat.mappers.ChatMessageMapper;
+import com.easychat.mappers.ChatSessionUserMapper;
 import com.easychat.mappers.UserContactApplyMapper;
 import com.easychat.mappers.UserInfoMapper;
 import com.easychat.redis.RedisComponent;
@@ -53,7 +54,7 @@ public class ChannelContextUtils {
     @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
     @Resource
-    private ChatSessionUserService chatSessionUserService;
+    private ChatSessionUserMapper<ChatSessionUser,ChatSessionUserQuery> chatSessionUserMapper;
     @Resource
     private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
     @Resource
@@ -110,7 +111,7 @@ public class ChannelContextUtils {
         ChatSessionUserQuery sessionUserQuery = new ChatSessionUserQuery();
         sessionUserQuery.setUserId(userId);
         sessionUserQuery.setOrderBy("last_receive_time desc");
-        List<ChatSessionUser> chatSessionUserList = chatSessionUserService.findListByParam(sessionUserQuery);
+        List<ChatSessionUser> chatSessionUserList = chatSessionUserMapper.selectList(sessionUserQuery);
 
         WsInitData wsInitData = new WsInitData();
         wsInitData.setChatSessionList(chatSessionUserList);
@@ -188,8 +189,6 @@ public class ChannelContextUtils {
                 sendToUSer(messageSendDto);
                 break;
         }
-
-
     }
 
     //发送给用户

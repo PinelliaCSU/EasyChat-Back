@@ -9,6 +9,8 @@ public enum ResponseCodeEnum {
     CODE_600(600,"请求参数错误"),
     CODE_601(601,"请求信息以及存在"),
     CODE_901(901,"登录超时"),
+    CODE_902(902,"您不是对方好友，请先向对方发送好友申请"),
+    CODE_903(903,"您已经不在群聊"),
     CODE_500(500,"服务器返回错误，请联系管理员");
 
     private Integer code;

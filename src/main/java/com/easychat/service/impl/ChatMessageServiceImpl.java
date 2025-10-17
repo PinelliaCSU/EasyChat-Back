@@ -1,10 +1,17 @@
 package com.easychat.service.impl;
 
+import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
+import com.easychat.entity.dto.TokenUserInfoDto;
+import com.easychat.entity.enums.ResponseCodeEnum;
+import com.easychat.entity.enums.UserContactTypeEnum;
 import com.easychat.entity.query.ChatMessageQuery;
 import com.easychat.entity.query.SimplePage;
 import com.easychat.entity.po.ChatMessage;
 import com.easychat.entity.vo.PaginationResultVO;
+import com.easychat.exception.BusinessException;
 import com.easychat.mappers.ChatMessageMapper;
+import com.easychat.redis.RedisComponent;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import javax.annotation.Resource;
@@ -21,6 +28,8 @@ public class ChatMessageServiceImpl implements ChatMessageService{
 
 	@Resource
 	private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
+	@Resource
+	private RedisComponent redisComponent;
 	/**
 	 * 根据条件查询列表
 	 */
@@ -103,5 +112,24 @@ public class ChatMessageServiceImpl implements ChatMessageService{
 	 public Integer deleteByMessageId(Long messageId){
 		return this.chatMessageMapper.deleteByMessageId(messageId);
 	 }
+
+	@Override
+	public MessageSendDto saveMessage(ChatMessage chatmessage, TokenUserInfoDto tokenUserInfoDto) throws BusinessException {
+		//不是机器人，判断好友状态
+		if(!Constants.ROBOT_UID.equals(tokenUserInfoDto.getUserId())){
+			List<String> contactList = redisComponent.getUserContactList(tokenUserInfoDto.getUserId());
+			if(!contactList.contains(chatmessage.getContactId())){
+				UserContactTypeEnum userContactTypeEnum = UserContactTypeEnum.getByPrefix(chatmessage.getContactId());
+				if(userContactTypeEnum.USER == userContactTypeEnum){
+					throw new BusinessException(ResponseCodeEnum.CODE_902);//是好友，但是找不到
+				}else{
+					throw new BusinessException(ResponseCodeEnum.CODE_903);//是群组，但是找不到
+				}
+			}
+		}
+
+
+		return null;
+	}
 
 }

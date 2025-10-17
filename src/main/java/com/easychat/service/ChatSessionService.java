@@ -5,7 +5,7 @@ import com.easychat.entity.po.ChatSession;
 import com.easychat.entity.vo.PaginationResultVO;
 import java.util.List;
 /**
- * @author 竝inellia
+ * @author Pinellia
  * @Description: 会话信息对应的Service
  * @date: 2025/10/12
  */

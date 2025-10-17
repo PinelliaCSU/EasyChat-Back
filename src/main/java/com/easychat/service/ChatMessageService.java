@@ -1,11 +1,15 @@
 package com.easychat.service;
 
+import com.easychat.entity.dto.MessageSendDto;
+import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.query.ChatMessageQuery;
 import com.easychat.entity.po.ChatMessage;
 import com.easychat.entity.vo.PaginationResultVO;
+import com.easychat.exception.BusinessException;
+
 import java.util.List;
 /**
- * @author 竝inellia
+ * @author Pinellia
  * @Description: 聊天消息表对应的Service
  * @date: 2025/10/12
  */
@@ -58,5 +62,5 @@ public interface ChatMessageService{
 	 */
 	 Integer deleteByMessageId(Long messageId);
 
-
+	 MessageSendDto saveMessage(ChatMessage message, TokenUserInfoDto tokenUserInfoDto) throws BusinessException;
 }

@@ -2,7 +2,7 @@ package com.easychat.entity.query;
 
 
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 靓号表查询对象
  * @date: 2025/07/23
  */

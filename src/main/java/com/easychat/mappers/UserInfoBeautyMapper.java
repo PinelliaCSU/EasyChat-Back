@@ -3,7 +3,7 @@ package com.easychat.mappers;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Mapper;
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 靓号表的Mapper类
  * @date: 2025/07/23
  */

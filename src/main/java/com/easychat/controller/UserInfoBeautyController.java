@@ -10,7 +10,7 @@ import com.easychat.entity.query.UserInfoBeautyQuery;
 import com.easychat.entity.vo.ResponseVO;
 import java.util.List;
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 靓号表的Controller类
  * @date: 2025/07/23
  */

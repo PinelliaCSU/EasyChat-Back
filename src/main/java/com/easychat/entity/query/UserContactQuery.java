@@ -5,7 +5,7 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 import java.util.Date;
 
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 联系人查询对象
  * @date: 2025/08/25
  */

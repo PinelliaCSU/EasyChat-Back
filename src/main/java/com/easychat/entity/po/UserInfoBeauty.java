@@ -4,7 +4,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 靓号表
  * @date: 2025/07/23
  */

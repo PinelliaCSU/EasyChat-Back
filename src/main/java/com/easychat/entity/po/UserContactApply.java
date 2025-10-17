@@ -6,7 +6,7 @@ import com.easychat.entity.enums.UserContactApplyStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 联系人申请
  * @date: 2025/08/25
  */

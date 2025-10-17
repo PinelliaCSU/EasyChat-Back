@@ -3,7 +3,7 @@ package com.easychat.entity.query;
 import java.util.Date;
 
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 查询对象
  * @date: 2025/08/25
  */

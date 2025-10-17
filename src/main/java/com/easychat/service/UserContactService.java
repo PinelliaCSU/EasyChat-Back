@@ -10,7 +10,7 @@ import com.easychat.exception.BusinessException;
 
 import java.util.List;
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 联系人对应的Service
  * @date: 2025/08/25
  */

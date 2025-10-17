@@ -9,7 +9,7 @@ import com.easychat.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 
  * @date: 2025/08/25
  */

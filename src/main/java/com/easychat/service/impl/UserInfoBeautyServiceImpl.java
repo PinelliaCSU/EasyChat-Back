@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 import com.easychat.entity.enums.PageSize;
 import com.easychat.service.UserInfoBeautyService;
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 靓号表对应的ServiceImpl
  * @date: 2025/07/23
  */

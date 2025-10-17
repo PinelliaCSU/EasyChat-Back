@@ -31,7 +31,7 @@ import com.easychat.service.UserContactService;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author 高98
+ * @author Pinellia
  * @Description: 联系人对应的ServiceImpl
  * @date: 2025/08/25
  */
