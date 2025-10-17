@@ -17,6 +17,7 @@ import com.easychat.mappers.UserContactMapper;
 import com.easychat.mappers.UserInfoBeautyMapper;
 import com.easychat.mappers.UserInfoMapper;
 import com.easychat.redis.RedisComponent;
+import com.easychat.service.ChatSessionUserService;
 import com.easychat.service.UserContactService;
 import com.easychat.utils.CopyTools;
 import com.easychat.utils.StringTools;
@@ -55,6 +56,8 @@ public class UserInfoServiceImpl implements UserInfoService{
     private UserContactMapper userContactMapper;
 	@Resource
 	private UserContactService userContactService;
+	@Resource
+	private ChatSessionUserService chatSessionUserService;
 	/**
 	 * 根据条件查询列表
 	 */
@@ -269,12 +272,23 @@ public class UserInfoServiceImpl implements UserInfoService{
 
 		UserInfo dbInfo = this.userInfoMapper.selectByUserId(userInfo.getUserId());
 		this.userInfoMapper.updateByUserId(userInfo,userInfo.getUserId());
+
 		String contactNameUpdate = null;
-		if(dbInfo.getNickName().equals(userInfo.getNickName())){
+		if(!dbInfo.getNickName().equals(userInfo.getNickName())){
 			contactNameUpdate = userInfo.getNickName();
 		}
+		// 更新会话信息中的昵称问题
+		if(contactNameUpdate == null){
+			return;
+		}
 
-		//TODO 更新会话信息中的昵称问题
+		//redis更新token中的昵称
+		//注意修改了昵称，那么redis也要随之改变，这个我是完全没想到
+		TokenUserInfoDto tokenUserInfoDto =  redisComponent.getTokenUserInfoDtoByUserId(userInfo.getUserId());
+		tokenUserInfoDto.setNickName(contactNameUpdate);
+		redisComponent.saveTokenUserInfoDto(tokenUserInfoDto);
+
+		chatSessionUserService.updateRedundantInfo(contactNameUpdate,userInfo.getUserId());
 	}
 
 	@Override

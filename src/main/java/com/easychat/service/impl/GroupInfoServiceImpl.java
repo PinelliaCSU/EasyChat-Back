@@ -11,6 +11,8 @@ import com.easychat.entity.vo.PaginationResultVO;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.*;
 import com.easychat.redis.RedisComponent;
+import com.easychat.service.ChatSessionService;
+import com.easychat.service.ChatSessionUserService;
 import com.easychat.utils.CopyTools;
 import com.easychat.utils.StringTools;
 import com.easychat.websocket.ChannelContextUtils;
@@ -56,7 +58,8 @@ public class GroupInfoServiceImpl implements GroupInfoService{
 	private AppConfig appConfig;
 	@Resource
 	private ChannelContextUtils channelContextUtils;
-
+	@Resource
+	private ChatSessionUserService chatSessionUserService;
 	/**
 	 * 根据条件查询列表
 	 */
@@ -221,10 +224,16 @@ public class GroupInfoServiceImpl implements GroupInfoService{
 				throw new BusinessException(ResponseCodeEnum.CODE_600);
 			}
 			this.groupInfoMapper.updateByGroupId(groupInfo,groupInfo.getGroupId());
-			//TODO 更新相关表冗余信息
+			// 更新相关表冗余信息
+			String contactNameUpdate = null;
+			if(!dbInfo.getGroupName().equals(groupInfo.getGroupName())){
+				contactNameUpdate = groupInfo.getGroupName();
+			}
+			if(contactNameUpdate == null){
+				return;
+			}
 
-
-			//TODO 修改群昵称，发送ws消息，为了实时更新
+			chatSessionUserService.updateRedundantInfo(contactNameUpdate,groupInfo.getGroupId());
 
 
 		}

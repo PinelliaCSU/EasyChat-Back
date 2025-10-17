@@ -195,4 +195,27 @@
 		delete from chat_session_user where user_id=#{userId} and contact_id=#{contactId}
 	</delete>
 
+
+	<!-- 根据条件更新 -->
+	<update id="updateByParam" parameterType="com.easychat.entity.query.ChatSessionUserQuery">
+		update chat_session_user
+		<set>
+			<if test="bean.userId != null and bean.userId != ''">
+				user_id = #{bean.userId},
+			</if>
+			<if test="bean.contactId != null and bean.contactId != ''">
+				contact_id = #{bean.contactId},
+			</if>
+			<if test="bean.sessionId != null and bean.sessionId != ''">
+				session_id = #{bean.sessionId},
+			</if>
+			<if test="bean.contactName != null and bean.contactName != ''">
+				contact_name = #{bean.contactName},
+			</if>
+		</set>
+		<where>
+			<include refid="query_condition"/>
+		</where>
+	</update>
+
 </mapper>

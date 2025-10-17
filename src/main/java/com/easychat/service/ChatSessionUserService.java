@@ -58,5 +58,7 @@ public interface ChatSessionUserService{
 	 */
 	 Integer deleteByUserIdAndContactId(String userId,String contactId);
 
+	 Integer updateByParam(ChatSessionUser bean,ChatSessionUserQuery query);
 
+	 public void updateRedundantInfo(String contactName,String contactId);
 }
